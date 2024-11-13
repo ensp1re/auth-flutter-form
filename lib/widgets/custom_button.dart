@@ -1,33 +1,22 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
-  final String hintText;
-  final bool obscureText;
-  final TextEditingController controller;
+class CustomButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
 
-  const CustomTextField({super.key,
-    required this.hintText,
-    required this.controller,
-    this.obscureText = false,
-  });
+  CustomButton({required this.text, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        hintText: hintText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: Colors.green,
-            width: 2.0,
-          ),
-        ),
-        filled: true,
-        fillColor: Colors.grey[200],
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green,
+        padding: const  EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+      ),
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
