@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
+import 'package:dio/dio.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+
+  final Dio dio = Dio();
+
+
+  Future<void> _sendDataToRequestCatcher(Map<String, dynamic> data) async {
+    final url = 'https://authtester.requestcatcher.com/reset-password';
+    try {
+      final response = await dio.post(
+        url,
+        data: data,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      print('Response: ${response.data}');
+    } catch (e) {
+      if (e is DioException) {
+        print('DioException: ${e.message}');
+        print('Request Data: ${e.requestOptions.data}');
+        print('Response Data: ${e.response?.data}');
+      } else {
+        print('Other Error: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +65,12 @@ class ResetPasswordScreen extends StatelessWidget {
               SizedBox(height: 20),
               CustomButton(
                 text: 'Send Reset Link',
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                    // Handle password reset logic
+                    final data = {
+                      'email': emailController.text.trim(),
+                    };
+                    await _sendDataToRequestCatcher(data);
                   }
                 },
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -8,6 +9,28 @@ class SignUpScreen extends StatelessWidget {
   final TextEditingController confirmPasswordController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final Dio dio = Dio();
+
+  Future<void> _sendDataToRequestCatcher(Map<String, dynamic> data) async {
+    final url = 'https://authtester.requestcatcher.com/sign-up';
+    try {
+      final response = await dio.post(
+        url,
+        data: data,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      print('Response: ${response.data}');
+    } catch (e) {
+      if (e is DioException) {
+        print('DioException: ${e.message}');
+        print('Request Data: ${e.requestOptions.data}');
+        print('Response Data: ${e.response?.data}');
+      } else {
+        print('Other Error: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,14 +90,23 @@ class SignUpScreen extends StatelessWidget {
               SizedBox(height: 20),
               CustomButton(
                 text: 'Sign Up',
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                    showDialog(context: context, builder: (BuildContext ctx) {
-                      return const AlertDialog(
-                        title:Text("Message"),
-                        content: Text("Success"),
-                      );
-                    });
+                    final data = {
+                      'email': emailController.text.trim(),
+                      'password': passwordController.text.trim(),
+                    };
+                    await _sendDataToRequestCatcher(data);
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext ctx) {
+                        return const AlertDialog(
+                          title: Text("Message"),
+                          content: Text("Sign-Up Successful"),
+                        );
+                      },
+                    );
                   }
                 },
               ),

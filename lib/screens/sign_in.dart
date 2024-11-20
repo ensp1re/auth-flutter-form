@@ -1,12 +1,41 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
+import 'package:dio/dio.dart';
 
 class SignInScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final Dio dio = Dio();
+
+
+  Future<void> _sendDataToRequestCatcher(Map<String, dynamic> data) async {
+    final url = 'https://authtester.requestcatcher.com/sign-in';
+    try {
+      final response = await dio.post(
+        url,
+        data: data,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      print('Response: ${response.data}');
+    } catch (e) {
+      if (e is DioException) {
+        print('DioException: ${e.message}');
+        print('Request Data: ${e.requestOptions.data}');
+        print('Response Data: ${e.response?.data}');
+      } else {
+        print('Other Error: $e');
+      }
+    }
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +82,15 @@ class SignInScreen extends StatelessWidget {
               SizedBox(height: 20),
               CustomButton(
                 text: 'Sign In',
-                onPressed: () {
+                onPressed:  () async {
                   if (_formKey.currentState?.validate() ?? false) {
+
+                    final data = {
+                  'email': emailController.text.trim(),
+                  'password': passwordController.text.trim(),
+                  };
+                  await _sendDataToRequestCatcher(data);
+
                     showDialog(context: context, builder: (BuildContext ctx) {
                       return const AlertDialog(
                         title:Text("Message"),
